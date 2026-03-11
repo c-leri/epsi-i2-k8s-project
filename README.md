@@ -1,0 +1,35 @@
+# Projet déploiement applicatif dans Kubernetes
+
+## Déploiement dans le cluster
+
+### Installation du Cluster
+
+Mise en place d'un cluster kind:
+```sh
+kind create cluster --config ./kind-config.yaml
+```
+
+Installation de `MetalLB` via `Helm`:
+```sh
+helm repo add metallb https://metallb.github.io/metallb
+helm install metallb metallb/metallb --values ./metallb-values.yaml
+```
+
+Installation de `traefik` via `Helm`:
+```sh
+helm repo add traefik https://traefik.github.io/charts
+helm install traefik traefik/traefik
+```
+
+### Installation des StorageClass
+
+Installation du driver `NFS CSI` via `Helm`:
+```sh
+helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
+helm install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system --version 4.13.1 --values ./csi-driver-nfs-values.yaml
+```
+
+Installation du `local-path-provisionner` de `Rancher`:
+```sh
+kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.35/deploy/local-path-storage.yaml
+```
