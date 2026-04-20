@@ -6,6 +6,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const PORT = process.env.PORT || 3001;
+
 const pool = new Pool({
   host: process.env.DB_HOST || 'db',
   port: process.env.DB_PORT || 5432,
@@ -14,9 +16,9 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD || 'postgres',
 });
 
-// Wait for DB to be ready, then seed
 async function initDB() {
   let retries = 10;
+
   while (retries > 0) {
     try {
       await pool.query(`
@@ -26,8 +28,41 @@ async function initDB() {
         );
       `);
 
-      const { rows } = await pool.query('SELECT COUNT(*) FROM jokes');
-      if (parseInt(rows[0].count) === 0) {
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS users (
+          id SERIAL PRIMARY KEY,
+          username VARCHAR(100) NOT NULL UNIQUE
+        );
+      `);
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS ratings (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          joke_id INTEGER NOT NULL REFERENCES jokes(id) ON DELETE CASCADE,
+          rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+          created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+          updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+          CONSTRAINT unique_user_joke_rating UNIQUE (user_id, joke_id)
+        );
+      `);
+
+      await pool.query(`
+        CREATE INDEX IF NOT EXISTS idx_ratings_joke_id ON ratings(joke_id);
+      `);
+
+      await pool.query(`
+        CREATE INDEX IF NOT EXISTS idx_ratings_user_id ON ratings(user_id);
+      `);
+
+      await pool.query(`
+        CREATE INDEX IF NOT EXISTS idx_ratings_updated_at ON ratings(updated_at DESC);
+      `);
+
+      const jokesCountResult = await pool.query('SELECT COUNT(*) FROM jokes');
+      const jokesCount = parseInt(jokesCountResult.rows[0].count, 10);
+
+      if (jokesCount === 0) {
         await pool.query(`
           INSERT INTO jokes (joke) VALUES
           ('Why do Java developers wear glasses? Because they don''t C#.'),
@@ -36,12 +71,32 @@ async function initDB() {
           ('There are only 10 kinds of people: those who understand binary, and those who don''t.'),
           ('Why was the JavaScript developer sad? Because they didn''t Node how to Express themselves.'),
           ('How many programmers does it take to change a lightbulb? None — that''s a hardware problem.'),
-          ('Why did the developer go broke? Because he used up all his cache.'),
           ('I would tell you a joke about UDP, but you might not get it.'),
-          ('A byte walks into a bar looking pale. The bartender asks: "What''s wrong?" The byte says: "I''ve got a bit flip."'),
-          ('Why do Agile developers never look out the window? Because then they''d have nothing to do in the afternoon.');
+          ('A programmer''s partner says: ''Go to the store, get a gallon of milk, and if they have eggs, get a dozen.'' They come home with 12 gallons of milk.'),
+          ('I tried to come up with a joke about recursion, but it just kept going.'),
+          ('Why was the developer unhappy at their job? They wanted arrays.'),
+          ('What''s a computer''s favorite snack? Microchips.'),
+          ('Why do programmers hate nature? Too many bugs and no stack trace.'),
+          ('A QA engineer walks into a bar. Orders 0 beers. Orders 999999999 beers. Orders -1 beers. Orders null beers. Orders asdfjkl; beers.'),
+          ('There''s no place like 127.0.0.1.');
         `);
         console.log('Database seeded with jokes.');
+      }
+
+      const usersCountResult = await pool.query('SELECT COUNT(*) FROM users');
+      const usersCount = parseInt(usersCountResult.rows[0].count, 10);
+
+      if (usersCount === 0) {
+        await pool.query(`
+          INSERT INTO users (username) VALUES
+          ('hugo'),
+          ('alice'),
+          ('bob'),
+          ('charlie'),
+          ('diana'),
+          ('eve');
+        `);
+        console.log('Database seeded with users.');
       }
 
       console.log('Database initialized.');
@@ -52,27 +107,208 @@ async function initDB() {
       await new Promise(r => setTimeout(r, 2000));
     }
   }
+
   throw new Error('Could not connect to database.');
 }
 
-app.get('/joke', async (req, res) => {
-  const query = 'SELECT * FROM jokes ORDER BY RANDOM() LIMIT 1';
+app.get('/user/random', async (req, res) => {
   try {
-    const result = await pool.query(query);
+    const result = await pool.query(`
+      SELECT id, username
+      FROM users
+      ORDER BY RANDOM()
+      LIMIT 1
+    `);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'No users found' });
+    }
+
     res.json({
-      query,
-      result: result.rows[0]
+      currentUser: result.rows[0]
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.get('/health', (req, res) => res.json({ status: 'ok' }));
+app.get('/joke', async (req, res) => {
+  const userId = parseInt(req.query.userId, 10);
 
-initDB().then(() => {
-  app.listen(3001, () => console.log('Backend running on port 3001'));
-}).catch(err => {
-  console.error(err);
-  process.exit(1);
+  if (!Number.isInteger(userId) || userId <= 0) {
+    return res.status(400).json({ error: 'A valid userId query parameter is required' });
+  }
+
+  try {
+    const userCheck = await pool.query(
+      'SELECT id, username FROM users WHERE id = $1',
+      [userId]
+    );
+
+    if (userCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const jokeResult = await pool.query(`
+      SELECT id, joke
+      FROM jokes
+      ORDER BY RANDOM()
+      LIMIT 1
+    `);
+
+    if (jokeResult.rows.length === 0) {
+      return res.status(404).json({ error: 'No jokes found' });
+    }
+
+    const joke = jokeResult.rows[0];
+
+    const ratingSummaryResult = await pool.query(`
+      SELECT
+        joke_id,
+        ROUND(AVG(rating)::numeric, 2)::float8 AS average_rating,
+        COUNT(*)::int AS rating_count
+      FROM ratings
+      WHERE joke_id = $1
+      GROUP BY joke_id
+    `, [joke.id]);
+
+    const userRatingResult = await pool.query(`
+      SELECT rating, created_at, updated_at
+      FROM ratings
+      WHERE user_id = $1 AND joke_id = $2
+      LIMIT 1
+    `, [userId, joke.id]);
+
+    const ratingSummary = ratingSummaryResult.rows[0] || null;
+    const userRating = userRatingResult.rows[0] || null;
+
+    res.json({
+      query: 'SELECT id, joke FROM jokes ORDER BY RANDOM() LIMIT 1',
+      currentUser: userCheck.rows[0],
+      result: {
+        id: joke.id,
+        joke: joke.joke,
+        averageRating: ratingSummary ? ratingSummary.average_rating : null,
+        ratingCount: ratingSummary ? ratingSummary.rating_count : 0,
+        userRating: userRating ? userRating.rating : null,
+        hasUserRated: !!userRating
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
+
+app.post('/ratings', async (req, res) => {
+  const userId = parseInt(req.body.userId, 10);
+  const jokeId = parseInt(req.body.jokeId, 10);
+  const rating = parseInt(req.body.rating, 10);
+
+  if (!Number.isInteger(userId) || userId <= 0) {
+    return res.status(400).json({ error: 'A valid userId is required' });
+  }
+
+  if (!Number.isInteger(jokeId) || jokeId <= 0) {
+    return res.status(400).json({ error: 'A valid jokeId is required' });
+  }
+
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+    return res.status(400).json({ error: 'Rating must be an integer between 1 and 5' });
+  }
+
+  try {
+    const userCheck = await pool.query(
+      'SELECT id, username FROM users WHERE id = $1',
+      [userId]
+    );
+
+    if (userCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const jokeCheck = await pool.query(
+      'SELECT id, joke FROM jokes WHERE id = $1',
+      [jokeId]
+    );
+
+    if (jokeCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Joke not found' });
+    }
+
+    const upsertResult = await pool.query(`
+      INSERT INTO ratings (user_id, joke_id, rating)
+      VALUES ($1, $2, $3)
+      ON CONFLICT (user_id, joke_id)
+      DO UPDATE SET
+        rating = EXCLUDED.rating,
+        updated_at = NOW()
+      RETURNING
+        id,
+        user_id,
+        joke_id,
+        rating,
+        created_at,
+        updated_at,
+        CASE
+          WHEN created_at = updated_at THEN 'insert'
+          ELSE 'update'
+        END AS action
+    `, [userId, jokeId, rating]);
+
+    const savedRating = upsertResult.rows[0];
+
+    res.json({
+      message: savedRating.action === 'insert' ? 'Rating created' : 'Rating updated',
+      action: savedRating.action,
+      rating: savedRating
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/ratings/recent', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        r.id,
+        r.rating,
+        r.created_at,
+        r.updated_at,
+        CASE
+          WHEN r.created_at = r.updated_at THEN 'insert'
+          ELSE 'update'
+        END AS action,
+        u.id AS user_id,
+        u.username,
+        j.id AS joke_id,
+        j.joke
+      FROM ratings r
+      JOIN users u ON u.id = r.user_id
+      JOIN jokes j ON j.id = r.joke_id
+      ORDER BY r.updated_at DESC
+      LIMIT 4
+    `);
+
+    res.json({
+      items: result.rows
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
+initDB()
+  .then(() => {
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Backend running on port ${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error(err);
+    process.exit(1);
+  });

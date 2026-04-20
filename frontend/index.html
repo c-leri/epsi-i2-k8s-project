@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
       --bg: #0a0a0c;
       --surface: #111116;
@@ -16,7 +17,11 @@
       --text: #e0e0f0;
       --muted: #5a5a7a;
       --code-bg: #0d0d14;
+      --danger: #ff6b6b;
+      --success: #63e6be;
+      --warning: #ffd43b;
     }
+
     body {
       background: var(--bg);
       color: var(--text);
@@ -27,6 +32,7 @@
       align-items: center;
       overflow-x: hidden;
     }
+
     body::before {
       content: '';
       position: fixed;
@@ -39,6 +45,7 @@
       pointer-events: none;
       z-index: 0;
     }
+
     body::after {
       content: '';
       position: fixed;
@@ -51,24 +58,24 @@
       pointer-events: none;
       z-index: 0;
     }
+
     .container {
       position: relative;
       z-index: 1;
       width: 100%;
-      max-width: 720px;
+      max-width: 1180px;
       padding: 0 24px 80px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
     }
+
     header {
       width: 100%;
-      padding: 48px 0 64px;
+      padding: 48px 0 40px;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 8px;
     }
+
     .tag {
       font-size: 10px;
       font-weight: 500;
@@ -77,6 +84,7 @@
       color: var(--accent2);
       opacity: 0.7;
     }
+
     h1 {
       font-family: 'Bebas Neue', sans-serif;
       font-size: clamp(52px, 10vw, 96px);
@@ -85,86 +93,208 @@
       color: var(--text);
       text-align: center;
     }
+
     h1 span {
       color: var(--accent);
       position: relative;
     }
+
     h1 span::after {
       content: '';
       position: absolute;
       bottom: 4px;
-      left: 0; right: 0;
+      left: 0;
+      right: 0;
       height: 3px;
       background: var(--accent);
       border-radius: 2px;
       opacity: 0.5;
     }
+
     .divider {
       width: 48px;
       height: 1px;
       background: linear-gradient(90deg, transparent, var(--accent2), transparent);
       margin: 8px 0 0;
     }
-    .btn-zone {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
+
+    .layout-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.8fr) minmax(320px, 0.9fr);
+      gap: 24px;
+      align-items: start;
     }
-    .press-btn {
+
+    .main-column {
+      min-width: 0;
+    }
+
+    .side-column {
+      min-width: 0;
+    }
+
+    .user-panel,
+    .history-panel,
+    .result-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      position: relative;
+    }
+
+    .user-panel {
+      margin-bottom: 28px;
+      border-top: 2px solid var(--accent);
+      padding: 18px 20px;
+    }
+
+    .user-panel::before {
+      content: '// CURRENT USER';
+      position: absolute;
+      top: -10px;
+      left: 20px;
+      background: var(--surface);
+      padding: 0 8px;
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: var(--accent);
+    }
+
+    .history-panel {
+      border-top: 2px solid var(--warning);
+      padding: 22px 20px;
+      position: sticky;
+      top: 24px;
+    }
+
+    .history-panel::before {
+      content: '// RECENT RATINGS';
+      position: absolute;
+      top: -10px;
+      left: 20px;
+      background: var(--surface);
+      padding: 0 8px;
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: var(--warning);
+    }
+
+    .user-label,
+    .panel-label,
+    .result-text,
+    .meta-title,
+    .rating-section-title,
+    .history-title {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .user-label,
+    .panel-label,
+    .result-text,
+    .rating-section-title {
+      margin-bottom: 10px;
+    }
+
+    .user-value {
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    .user-value strong {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .user-error,
+    .feedback-error,
+    .history-error {
+      color: var(--danger);
+    }
+
+    .press-btn,
+    .submit-rating-btn {
       position: relative;
       background: transparent;
-      border: 1px solid var(--accent);
-      color: var(--accent);
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 22px;
-      letter-spacing: 5px;
-      padding: 18px 64px;
+      letter-spacing: 4px;
       cursor: pointer;
       transition: all 0.2s ease;
       outline: none;
       overflow: hidden;
-      clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
     }
-    .press-btn::before {
+
+    .press-btn {
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-size: 22px;
+      padding: 18px 64px;
+      clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+      margin-bottom: 16px;
+    }
+
+    .press-btn::before,
+    .submit-rating-btn::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: var(--accent);
       transform: scaleX(0);
       transform-origin: left;
       transition: transform 0.25s ease;
       z-index: 0;
     }
-    .press-btn span {
+
+    .press-btn::before {
+      background: var(--accent);
+    }
+
+    .press-btn span,
+    .submit-rating-btn span {
       position: relative;
       z-index: 1;
       transition: color 0.25s ease;
     }
-    .press-btn:hover::before { transform: scaleX(1); }
-    .press-btn:hover span { color: #0a0a0c; }
-    .press-btn:active { transform: scale(0.97); }
-    .press-btn:disabled {
+
+    .press-btn:hover::before,
+    .submit-rating-btn:hover::before {
+      transform: scaleX(1);
+    }
+
+    .press-btn:hover span {
+      color: #0a0a0c;
+    }
+
+    .press-btn:active,
+    .submit-rating-btn:active {
+      transform: scale(0.97);
+    }
+
+    .press-btn:disabled,
+    .submit-rating-btn:disabled {
       opacity: 0.4;
       cursor: not-allowed;
       pointer-events: none;
     }
+
     .result-wrapper {
       width: 100%;
       overflow: hidden;
       max-height: 0;
       transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .result-wrapper.open { max-height: 600px; }
+
+    .result-wrapper.open {
+      max-height: 1400px;
+    }
+
     .result-panel {
-      margin-top: 28px;
-      background: var(--surface);
-      border: 1px solid var(--border);
       border-top: 2px solid var(--accent2);
       padding: 28px 32px;
       width: 100%;
-      position: relative;
     }
+
     .result-panel::before {
       content: '// OUTPUT';
       position: absolute;
@@ -176,13 +306,7 @@
       letter-spacing: 3px;
       color: var(--accent2);
     }
-    .panel-label {
-      font-size: 10px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 10px;
-    }
+
     .sql-block {
       background: var(--code-bg);
       border: 1px solid var(--border);
@@ -194,13 +318,34 @@
       word-break: break-all;
       line-height: 1.7;
     }
-    .result-text {
-      font-size: 10px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 10px;
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
     }
+
+    .meta-card {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 14px 16px;
+    }
+
+    .meta-value {
+      font-size: 18px;
+      color: var(--text);
+      line-height: 1.4;
+      margin-top: 8px;
+    }
+
+    .meta-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
     .joke-output {
       background: var(--code-bg);
       border: 1px solid var(--border);
@@ -209,7 +354,9 @@
       font-size: 14px;
       color: var(--text);
       line-height: 1.8;
+      margin-bottom: 24px;
     }
+
     .joke-id {
       display: inline-block;
       font-size: 9px;
@@ -217,6 +364,202 @@
       color: var(--muted);
       margin-bottom: 6px;
     }
+
+    .rating-section {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 18px;
+    }
+
+    .rating-status-banner {
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--text);
+      margin-bottom: 16px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      background: rgba(123, 97, 255, 0.08);
+    }
+
+    .rating-status-banner.update {
+      border-color: rgba(255, 212, 59, 0.35);
+      background: rgba(255, 212, 59, 0.08);
+      color: var(--warning);
+    }
+
+    .rating-status-banner.new {
+      border-color: rgba(99, 230, 190, 0.35);
+      background: rgba(99, 230, 190, 0.08);
+      color: var(--success);
+    }
+
+    .rating-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .rating-options {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      border: 0;
+      padding: 0;
+      margin: 0;
+      min-width: 0;
+    }
+
+    .rating-options legend {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .rating-option input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .rating-option label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 16px;
+      user-select: none;
+    }
+
+    .rating-option label:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .rating-option input:focus-visible + label {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    .rating-option input:checked + label {
+      background: var(--accent);
+      color: #0a0a0c;
+      border-color: var(--accent);
+      font-weight: 700;
+    }
+
+    .submit-rating-btn {
+      align-self: flex-start;
+      border: 1px solid var(--accent2);
+      color: var(--accent2);
+      font-size: 18px;
+      padding: 14px 28px;
+      clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+    }
+
+    .submit-rating-btn::before {
+      background: var(--accent2);
+    }
+
+    .submit-rating-btn:hover span {
+      color: #0a0a0c;
+    }
+
+    .rating-feedback {
+      min-height: 22px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .feedback-success {
+      color: var(--success);
+    }
+
+    .feedback-warning {
+      color: var(--warning);
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .history-item {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 14px;
+    }
+
+    .history-item-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .history-user {
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .history-badge {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+    }
+
+    .history-badge.insert {
+      color: var(--success);
+      border-color: rgba(99, 230, 190, 0.35);
+      background: rgba(99, 230, 190, 0.08);
+    }
+
+    .history-badge.update {
+      color: var(--warning);
+      border-color: rgba(255, 212, 59, 0.35);
+      background: rgba(255, 212, 59, 0.08);
+    }
+
+    .history-rating {
+      font-size: 18px;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .history-joke {
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .history-time {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .history-empty {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-top: 12px;
+    }
+
     .spinner {
       display: inline-block;
       width: 14px;
@@ -228,7 +571,11 @@
       vertical-align: middle;
       margin-right: 8px;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
     .cooldown-bar {
       height: 2px;
       background: var(--accent2);
@@ -236,23 +583,43 @@
       margin-top: 16px;
       opacity: 0;
     }
+
     .cooldown-bar.active {
       opacity: 1;
       animation: cooldown 1.5s linear forwards;
     }
+
     @keyframes cooldown {
       from { width: 100%; }
       to { width: 0%; }
     }
-    .fade-in { animation: fadeIn 0.35s ease forwards; }
+
+    .fade-in {
+      animation: fadeIn 0.35s ease forwards;
+    }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(6px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
     footer {
       position: fixed;
       bottom: 0;
-      left: 0; right: 0;
+      left: 0;
+      right: 0;
       text-align: center;
       padding: 12px;
       font-size: 10px;
@@ -260,6 +627,36 @@
       letter-spacing: 2px;
       z-index: 10;
       background: linear-gradient(transparent, var(--bg) 60%);
+    }
+
+    @media (max-width: 980px) {
+      .layout-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .history-panel {
+        position: static;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .meta-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .rating-options {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+
+      .submit-rating-btn {
+        width: 100%;
+        align-self: stretch;
+      }
+
+      .history-item-top {
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
@@ -270,71 +667,447 @@
       <h1>Application<br>de <span>con</span></h1>
       <div class="divider"></div>
     </header>
-    <div class="btn-zone">
-      <button class="press-btn" id="pressBtn" onclick="fetchJoke()">
-        <span>Press Me</span>
-      </button>
-      <div class="cooldown-bar" id="cooldownBar"></div>
-      <div class="result-wrapper" id="resultWrapper">
-        <div class="result-panel">
-          <div class="panel-label">Requête envoyée à la base de données</div>
-          <div class="sql-block" id="sqlDisplay">—</div>
-          <div class="result-text">Résultat</div>
-          <div class="joke-output" id="jokeDisplay">
-            <span class="joke-id" id="jokeId"></span>
-            <br id="jokeBr" style="display:none">
-            <span id="jokeText">—</span>
+
+    <div class="layout-grid">
+      <div class="main-column">
+        <div class="user-panel">
+          <div class="user-label">Utilisateur courant</div>
+          <div class="user-value" id="currentUserDisplay">Chargement...</div>
+        </div>
+
+        <button class="press-btn" id="pressBtn" onclick="fetchJoke()">
+          <span>Press Me</span>
+        </button>
+        <div class="cooldown-bar" id="cooldownBar"></div>
+
+        <div class="result-wrapper" id="resultWrapper">
+          <div class="result-panel">
+            <div class="panel-label">Requête envoyée à la base de données</div>
+            <div class="sql-block" id="sqlDisplay">—</div>
+
+            <div class="meta-grid">
+              <div class="meta-card">
+                <div class="meta-title">Note moyenne</div>
+                <div class="meta-value" id="averageRatingDisplay">—</div>
+                <div class="meta-sub" id="ratingCountDisplay">Aucune note pour le moment</div>
+              </div>
+
+              <div class="meta-card">
+                <div class="meta-title">Votre note</div>
+                <div class="meta-value" id="userRatingDisplay">—</div>
+                <div class="meta-sub" id="userRatingStateDisplay">Cette blague n'a pas encore été notée par vous</div>
+              </div>
+            </div>
+
+            <div class="result-text">Résultat</div>
+            <div class="joke-output" id="jokeDisplay">
+              <span class="joke-id" id="jokeId"></span>
+              <br id="jokeBr" style="display:none">
+              <span id="jokeText">—</span>
+            </div>
+
+            <div class="rating-section">
+              <div class="rating-section-title">Notation</div>
+
+              <div class="rating-status-banner" id="ratingStatusBanner">
+                Chargez une blague pour pouvoir lui attribuer une note.
+              </div>
+
+              <form class="rating-form" id="ratingForm">
+                <fieldset class="rating-options" id="ratingOptions" disabled>
+                  <legend>Choisissez une note de 1 à 5</legend>
+
+                  <div class="rating-option">
+                    <input type="radio" name="rating" id="rating-1" value="1">
+                    <label for="rating-1">1</label>
+                  </div>
+
+                  <div class="rating-option">
+                    <input type="radio" name="rating" id="rating-2" value="2">
+                    <label for="rating-2">2</label>
+                  </div>
+
+                  <div class="rating-option">
+                    <input type="radio" name="rating" id="rating-3" value="3">
+                    <label for="rating-3">3</label>
+                  </div>
+
+                  <div class="rating-option">
+                    <input type="radio" name="rating" id="rating-4" value="4">
+                    <label for="rating-4">4</label>
+                  </div>
+
+                  <div class="rating-option">
+                    <input type="radio" name="rating" id="rating-5" value="5">
+                    <label for="rating-5">5</label>
+                  </div>
+                </fieldset>
+
+                <button type="submit" class="submit-rating-btn" id="submitRatingBtn" disabled>
+                  <span>Envoyer la note</span>
+                </button>
+
+                <div class="rating-feedback" id="ratingFeedback" aria-live="polite"></div>
+                <div id="ratingStatusLive" class="sr-only" aria-live="polite"></div>
+              </form>
+            </div>
           </div>
         </div>
       </div>
+
+      <aside class="side-column">
+        <div class="history-panel">
+          <div class="history-title">Historique récent</div>
+          <div id="historyContent">
+            <div class="history-empty">Aucune activité de notation pour le moment.</div>
+          </div>
+        </div>
+      </aside>
     </div>
   </div>
+
   <footer>APPLICATION DE CON &nbsp;·&nbsp; BACKEND: POSTGRESQL &nbsp;·&nbsp; NODE.JS</footer>
+
   <script>
-    const BACKEND_URL = 'http://localhost:3001';
-    let cooldown = false;
-    async function fetchJoke() {
-      if (cooldown) return;
-      const btn = document.getElementById('pressBtn');
-      const wrapper = document.getElementById('resultWrapper');
+  const BACKEND_URL = 'http://localhost:3001';
+
+  let cooldown = false;
+  let currentUser = null;
+  let currentJoke = null;
+
+  async function loadCurrentUser() {
+    const currentUserDisplay = document.getElementById('currentUserDisplay');
+
+    currentUserDisplay.innerHTML = '<span class="spinner"></span>Chargement utilisateur...';
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/user/random`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Impossible de charger un utilisateur');
+      }
+
+      currentUser = data.currentUser;
+      currentUserDisplay.innerHTML = `Connecté en tant que <strong>${currentUser.username}</strong> <span style="color: var(--muted)">#${currentUser.id}</span>`;
+    } catch (err) {
+      currentUserDisplay.innerHTML = `<span class="user-error">ERREUR : ${err.message}</span>`;
+    }
+  }
+
+  function getSelectedRating() {
+    const selected = document.querySelector('input[name="rating"]:checked');
+    return selected ? parseInt(selected.value, 10) : null;
+  }
+
+  function clearRatingSelection() {
+    document.querySelectorAll('input[name="rating"]').forEach(input => {
+      input.checked = false;
+    });
+  }
+
+  function setSelectedRating(value) {
+    clearRatingSelection();
+
+    if (value === null || value === undefined) {
+      return;
+    }
+
+    const input = document.querySelector(`input[name="rating"][value="${value}"]`);
+    if (input) {
+      input.checked = true;
+    }
+  }
+
+  function setRatingControlsEnabled(enabled) {
+    document.getElementById('ratingOptions').disabled = !enabled;
+    document.getElementById('submitRatingBtn').disabled = !enabled;
+  }
+
+  function setRatingFeedback(message, type = '') {
+    const ratingFeedback = document.getElementById('ratingFeedback');
+    const ratingStatusLive = document.getElementById('ratingStatusLive');
+
+    ratingFeedback.className = 'rating-feedback';
+    if (type) {
+      ratingFeedback.classList.add(type);
+    }
+
+    ratingFeedback.textContent = message;
+    ratingStatusLive.textContent = message;
+  }
+
+  function updateRatingStatusBanner(jokeData) {
+    const banner = document.getElementById('ratingStatusBanner');
+    const submitButtonLabel = document.querySelector('#submitRatingBtn span');
+
+    banner.className = 'rating-status-banner';
+
+    if (!jokeData) {
+      banner.textContent = 'Chargez une blague pour pouvoir lui attribuer une note.';
+      submitButtonLabel.textContent = 'Envoyer la note';
+      return;
+    }
+
+    if (jokeData.hasUserRated) {
+      banner.classList.add('update');
+      banner.textContent = `Vous avez déjà noté cette blague : ${jokeData.userRating}/5. Si vous envoyez une nouvelle note, cela mettra à jour votre note existante.`;
+      submitButtonLabel.textContent = 'Mettre à jour la note';
+    } else {
+      banner.classList.add('new');
+      banner.textContent = 'Vous n’avez pas encore noté cette blague. La première soumission créera une nouvelle note.';
+      submitButtonLabel.textContent = 'Envoyer la note';
+    }
+  }
+
+  function renderJokeState(jokeData) {
+    const averageRatingDisplay = document.getElementById('averageRatingDisplay');
+    const ratingCountDisplay = document.getElementById('ratingCountDisplay');
+    const userRatingDisplay = document.getElementById('userRatingDisplay');
+    const userRatingStateDisplay = document.getElementById('userRatingStateDisplay');
+    const jokeId = document.getElementById('jokeId');
+    const jokeText = document.getElementById('jokeText');
+    const jokeBr = document.getElementById('jokeBr');
+
+    currentJoke = jokeData;
+
+    jokeId.textContent = `row_id: ${jokeData.id}`;
+    jokeBr.style.display = '';
+    jokeText.textContent = jokeData.joke;
+
+    if (jokeData.averageRating === null) {
+      averageRatingDisplay.textContent = '—';
+      ratingCountDisplay.textContent = 'Aucune note pour le moment';
+    } else {
+      averageRatingDisplay.textContent = `${jokeData.averageRating}/5`;
+      ratingCountDisplay.textContent = `${jokeData.ratingCount} note(s) enregistrée(s)`;
+    }
+
+    if (jokeData.hasUserRated) {
+      userRatingDisplay.textContent = `${jokeData.userRating}/5`;
+      userRatingStateDisplay.textContent = 'Vous avez déjà noté cette blague. Une nouvelle soumission remplacera la précédente.';
+    } else {
+      userRatingDisplay.textContent = '—';
+      userRatingStateDisplay.textContent = 'Cette blague n’a pas encore été notée par vous';
+    }
+
+    setSelectedRating(jokeData.userRating);
+    updateRatingStatusBanner(jokeData);
+    setRatingControlsEnabled(true);
+  }
+
+  function renderLoadingState() {
+    currentJoke = null;
+    clearRatingSelection();
+    setRatingControlsEnabled(false);
+    setRatingFeedback('', '');
+
+    document.getElementById('sqlDisplay').innerHTML = '<span class="spinner"></span> Execution en cours...';
+    document.getElementById('jokeText').textContent = '...';
+    document.getElementById('jokeId').textContent = '';
+    document.getElementById('jokeBr').style.display = 'none';
+
+    document.getElementById('averageRatingDisplay').textContent = '—';
+    document.getElementById('ratingCountDisplay').textContent = 'Chargement des notes...';
+    document.getElementById('userRatingDisplay').textContent = '—';
+    document.getElementById('userRatingStateDisplay').textContent = 'Chargement de votre état de notation...';
+
+    updateRatingStatusBanner(null);
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  }
+
+  function truncateText(value, maxLength = 120) {
+    if (!value) return '';
+    return value.length > maxLength ? `${value.slice(0, maxLength - 1)}…` : value;
+  }
+
+  function formatDateTime(value) {
+    const date = new Date(value);
+    return date.toLocaleString('fr-FR');
+  }
+
+  async function loadRecentRatings() {
+    const historyContent = document.getElementById('historyContent');
+    historyContent.innerHTML = '<div class="history-empty"><span class="spinner"></span>Chargement de l’historique...</div>';
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/ratings/recent`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Impossible de charger l’historique');
+      }
+
+      if (!data.items || data.items.length === 0) {
+        historyContent.innerHTML = '<div class="history-empty">Aucune activité de notation pour le moment.</div>';
+        return;
+      }
+
+      historyContent.innerHTML = `
+        <div class="history-list">
+          ${data.items.map(item => `
+            <div class="history-item">
+              <div class="history-item-top">
+                <div class="history-user">
+                  <strong>${escapeHtml(item.username)}</strong> · joke #${item.joke_id}
+                </div>
+                <div class="history-badge ${escapeHtml(item.action)}">
+                  ${item.action === 'insert' ? 'nouvelle note' : 'mise à jour'}
+                </div>
+              </div>
+              <div class="history-rating">${escapeHtml(item.rating)}/5</div>
+              <div class="history-joke">${escapeHtml(truncateText(item.joke, 110))}</div>
+              <div class="history-time">${escapeHtml(formatDateTime(item.updated_at))}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    } catch (err) {
+      historyContent.innerHTML = `<div class="history-empty history-error">ERREUR : ${escapeHtml(err.message)}</div>`;
+    }
+  }
+
+  async function refreshCurrentJoke() {
+    if (!currentUser || !currentJoke) {
+      return;
+    }
+
+    const res = await fetch(`${BACKEND_URL}/joke?userId=${encodeURIComponent(currentUser.id)}`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || 'Erreur lors de la récupération de la blague');
+    }
+
+    document.getElementById('sqlDisplay').textContent = data.query;
+    renderJokeState(data.result);
+  }
+
+  async function fetchJoke() {
+    if (cooldown) return;
+
+    if (!currentUser) {
+      alert('Aucun utilisateur courant disponible.');
+      return;
+    }
+
+    const btn = document.getElementById('pressBtn');
+    const wrapper = document.getElementById('resultWrapper');
+    const cooldownBar = document.getElementById('cooldownBar');
+
+    btn.disabled = true;
+    wrapper.classList.add('open');
+    renderLoadingState();
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/joke?userId=${encodeURIComponent(currentUser.id)}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Erreur lors de la récupération de la blague');
+      }
+
       const sqlDisplay = document.getElementById('sqlDisplay');
       const jokeText = document.getElementById('jokeText');
-      const jokeId = document.getElementById('jokeId');
-      const jokeBr = document.getElementById('jokeBr');
-      const cooldownBar = document.getElementById('cooldownBar');
-      btn.disabled = true;
-      sqlDisplay.innerHTML = '<span class="spinner"></span> Execution en cours...';
-      jokeText.textContent = '...';
-      jokeId.textContent = '';
-      jokeBr.style.display = 'none';
-      wrapper.classList.add('open');
-      try {
-        const res = await fetch(`${BACKEND_URL}/joke`);
-        const data = await res.json();
-        sqlDisplay.classList.remove('fade-in');
-        void sqlDisplay.offsetWidth;
-        sqlDisplay.classList.add('fade-in');
-        sqlDisplay.textContent = data.query;
-        jokeId.textContent = `row_id: ${data.result.id}`;
-        jokeBr.style.display = '';
-        jokeText.classList.remove('fade-in');
-        void jokeText.offsetWidth;
-        jokeText.classList.add('fade-in');
-        jokeText.textContent = data.result.joke;
-      } catch (err) {
-        sqlDisplay.textContent = 'ERREUR DE CONNEXION AU BACKEND';
-        jokeText.textContent = err.message;
-      }
-      cooldown = true;
-      cooldownBar.classList.remove('active');
-      void cooldownBar.offsetWidth;
-      cooldownBar.classList.add('active');
-      setTimeout(() => {
-        btn.disabled = false;
-        cooldown = false;
-        cooldownBar.classList.remove('active');
-      }, 1500);
+
+      sqlDisplay.classList.remove('fade-in');
+      void sqlDisplay.offsetWidth;
+      sqlDisplay.classList.add('fade-in');
+      sqlDisplay.textContent = data.query;
+
+      jokeText.classList.remove('fade-in');
+      void jokeText.offsetWidth;
+      jokeText.classList.add('fade-in');
+
+      renderJokeState(data.result);
+    } catch (err) {
+      document.getElementById('sqlDisplay').textContent = 'ERREUR DE CONNEXION AU BACKEND';
+      document.getElementById('jokeText').textContent = err.message;
+      setRatingFeedback(err.message, 'feedback-error');
+      updateRatingStatusBanner(null);
     }
-  </script>
+
+    cooldown = true;
+    cooldownBar.classList.remove('active');
+    void cooldownBar.offsetWidth;
+    cooldownBar.classList.add('active');
+
+    setTimeout(() => {
+      btn.disabled = false;
+      cooldown = false;
+      cooldownBar.classList.remove('active');
+    }, 1500);
+  }
+
+  async function submitRating(event) {
+    event.preventDefault();
+
+    if (!currentUser || !currentJoke) {
+      setRatingFeedback('Aucune blague active à noter.', 'feedback-error');
+      return;
+    }
+
+    const selectedRating = getSelectedRating();
+
+    if (!selectedRating) {
+      setRatingFeedback('Sélectionnez une note entre 1 et 5 avant validation.', 'feedback-error');
+      return;
+    }
+
+    const submitRatingBtn = document.getElementById('submitRatingBtn');
+    const buttonLabel = submitRatingBtn.querySelector('span');
+
+    submitRatingBtn.disabled = true;
+    buttonLabel.textContent = 'Envoi...';
+    setRatingFeedback('Enregistrement de la note en cours...', '');
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/ratings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: currentUser.id,
+          jokeId: currentJoke.id,
+          rating: selectedRating
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Impossible d’enregistrer la note');
+      }
+
+      if (data.action === 'insert') {
+        setRatingFeedback(`Note enregistrée : ${selectedRating}/5`, 'feedback-success');
+      } else {
+        setRatingFeedback(`Note mise à jour : ${selectedRating}/5`, 'feedback-warning');
+      }
+
+      await refreshCurrentJoke();
+      await loadRecentRatings();
+    } catch (err) {
+      setRatingFeedback(err.message, 'feedback-error');
+    } finally {
+      submitRatingBtn.disabled = false;
+      buttonLabel.textContent = currentJoke && currentJoke.hasUserRated
+        ? 'Mettre à jour la note'
+        : 'Envoyer la note';
+    }
+  }
+
+  document.getElementById('ratingForm').addEventListener('submit', submitRating);
+
+  loadCurrentUser();
+  loadRecentRatings();
+</script>
 </body>
 </html>
