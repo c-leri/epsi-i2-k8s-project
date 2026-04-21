@@ -22,13 +22,13 @@ spec:
             - name: DB_HOST
               value: app-de-con-db
             - name: DB_NAME
-              value: app-de-con
+              value: app_de_con
             - name: DB_USER
-              value: app-de-con
+              value: app_de_con_writer_user
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: app-de-con.app-de-con-db.credentials.postgresql.acid.zalan.do
+                  name: app-de-con-writer-user.app-de-con-db.credentials.postgresql.acid.zalan.do
                   key: password
 ---
 apiVersion: v1

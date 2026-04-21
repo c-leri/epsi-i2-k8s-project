@@ -102,6 +102,7 @@ async function initDB() {
       console.log('Database initialized.');
       return;
     } catch (err) {
+      console.log(`Encounted error while connecting to DB: ${err}`);
       console.log(`DB not ready, retrying... (${retries} left)`);
       retries--;
       await new Promise(r => setTimeout(r, 2000));

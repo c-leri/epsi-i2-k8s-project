@@ -7,12 +7,8 @@ spec:
   volume:
     size: 1Gi
   numberOfInstances: 3
-  users:
-    app-de-con-owner:
-      - superuser
-      - createdb
-    app-de-con: []
-  databases:
-    app-de-con: app-de-con-owner
+  preparedDatabases:
+    app_de_con:
+      defaultUsers: true
   postgresql:
     version: "16"
