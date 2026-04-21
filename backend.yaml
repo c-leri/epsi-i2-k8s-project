@@ -15,12 +15,14 @@ spec:
     spec:
       containers:
         - name: web
-          image: ghcr.io/c-leri/epsi-i2-k8s-project-backend:main
+          image: ghcr.io/c-leri/epsi-i2-k8s-project-backend:latest
           ports:
             - containerPort: 80
           env:
             - name: DB_HOST
               value: app-de-con-db
+            - name: DB_USE_SSL
+              value: "true"
             - name: DB_NAME
               value: app_de_con
             - name: DB_USER
