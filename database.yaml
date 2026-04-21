@@ -1,0 +1,18 @@
+apiVersion: "acid.zalan.do/v1"
+kind: postgresql
+metadata:
+  name: app-de-con-db
+spec:
+  teamId: "acid"
+  volume:
+    size: 1Gi
+  numberOfInstances: 3
+  users:
+    app-de-con-owner:
+      - superuser
+      - createdb
+    app-de-con: []
+  databases:
+    app-de-con: app-de-con-owner
+  postgresql:
+    version: "16"

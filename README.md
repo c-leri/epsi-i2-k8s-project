@@ -12,7 +12,7 @@ kind create cluster --config ./kind-config.yaml
 Installation de `MetalLB` via `Helm`:
 ```sh
 helm repo add metallb https://metallb.github.io/metallb
-helm upgrade --install metallb \
+helm install metallb \
   --values ./metallb-values.yaml \
   metallb/metallb
 ```
@@ -28,7 +28,7 @@ helm install traefik traefik/traefik
 Installation du driver `NFS CSI` via `Helm`:
 ```sh
 helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
-helm upgrade --install csi-driver-nfs \
+helm install csi-driver-nfs \
   --namespace kube-system \
   --version 4.13.1 \
   --values ./csi-driver-nfs-values.yaml \
@@ -42,16 +42,19 @@ kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisione
 
 ### Déploiement de l'application
 
-Installation de l'opérateur `CloudNativePG` via `Helm` :
+Build des images docker :
 ```sh
-helm repo add cnpg https://cloudnative-pg.github.io/charts
-helm upgrade --install cnpg \
-  --namespace cnpg-system \
-  --create-namespace \
-  cnpg/cloudnative-pg
+docker build --tag app-de-con-backend:latest ./backend
+docker build --tag app-de-con-frontend:latest ./frontend
 ```
 
-Déploiement d'un cluster postgres :
+Installation du `postgres-operator` de `Zalando` via `Helm` :
 ```sh
-kubectl apply -f pg-cluster.yaml
+helm repo add postgres-operator-charts https://opensource.zalando.com/postgres-operator/charts/postgres-operator
+helm install postgres-operator postgres-operator-charts/postgres-operator
+```
+
+Déploiement du cluster postgresql :
+```sh
+kubectl create -f database.yaml
 ```
