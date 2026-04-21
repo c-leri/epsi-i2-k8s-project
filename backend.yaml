@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-de-con-backend
+spec:
+  selector:
+    matchLabels:
+      app: app-de-con-backend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: app-de-con-backend
+    spec:
+      containers:
+        - name: web
+          image: ghcr.io/c-leri/epsi-i2-k8s-project-backend:main
+          ports:
+            - containerPort: 80
+          env:
+            - name: DB_HOST
+              value: app-de-con-db
+            - name: DB_NAME
+              value: app-de-con
+            - name: DB_USER
+              value: app-de-con
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-de-con.app-de-con-db.credentials.postgresql.acid.zalan.do
+                  key: password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-de-con-backend
+spec:
+  selector:
+    app: app-de-con-backend
+  ports:
+    - port: 8080
+      targetPort: 80

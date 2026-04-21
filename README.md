@@ -42,12 +42,6 @@ kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisione
 
 ### Déploiement de l'application
 
-Build des images docker :
-```sh
-docker build --tag app-de-con-backend:latest ./backend
-docker build --tag app-de-con-frontend:latest ./frontend
-```
-
 Installation du `postgres-operator` de `Zalando` via `Helm` :
 ```sh
 helm repo add postgres-operator-charts https://opensource.zalando.com/postgres-operator/charts/postgres-operator
