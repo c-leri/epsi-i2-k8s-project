@@ -12,3 +12,7 @@ spec:
       defaultUsers: true
   postgresql:
     version: "16"
+  tls:
+    secretName: "pg-tls"
+  # Allow postgres user to read tls certificates
+  spiloFSGroup: 103

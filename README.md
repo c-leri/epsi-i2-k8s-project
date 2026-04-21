@@ -48,6 +48,13 @@ helm repo add postgres-operator-charts https://opensource.zalando.com/postgres-o
 helm install postgres-operator postgres-operator-charts/postgres-operator
 ```
 
+Création du secret tls :
+```sh
+kubectl create secret tls pg-tls \
+  --key tls.key \
+  --cert tls.crt
+```
+
 Déploiement du cluster postgresql :
 ```sh
 kubectl create -f database.yaml

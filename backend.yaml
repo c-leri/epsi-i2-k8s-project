@@ -21,8 +21,6 @@ spec:
           env:
             - name: DB_HOST
               value: app-de-con-db
-            - name: DB_USE_SSL
-              value: "true"
             - name: DB_NAME
               value: app_de_con
             - name: DB_USER
@@ -32,6 +30,17 @@ spec:
                 secretKeyRef:
                   name: app-de-con-writer-user.app-de-con-db.credentials.postgresql.acid.zalan.do
                   key: password
+            - name: DB_SSL_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: pg-tls
+                  key: "tls.key"
+            - name: DB_SSL_CERT
+              valueFrom:
+                secretKeyRef:
+                  name: pg-tls
+                  key: "tls.crt"
+
 ---
 apiVersion: v1
 kind: Service
