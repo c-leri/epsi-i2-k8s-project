@@ -4,12 +4,12 @@
 
 ### Installation du Cluster
 
-Mise en place d'un cluster kind:
+Mise en place d'un cluster kind :
 ```sh
 kind create cluster --config ./kind-config.yaml
 ```
 
-Installation de `MetalLB` via `Helm`:
+Installation de `MetalLB` via `Helm` :
 ```sh
 helm repo add metallb https://metallb.github.io/metallb
 helm install metallb \
@@ -17,15 +17,19 @@ helm install metallb \
   metallb/metallb
 ```
 
-Installation de `traefik` via `Helm`:
+Installation de `traefik` via `Helm` :
 ```sh
 helm repo add traefik https://traefik.github.io/charts
-helm install traefik traefik/traefik
+helm install traefik \
+  --namespace traefik \
+  --create-namespace \
+  --values traefik.yaml \
+  traefik/traefik
 ```
 
 #### Installation des StorageClass
 
-Installation du driver `NFS CSI` via `Helm`:
+Installation du driver `NFS CSI` via `Helm` :
 ```sh
 helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
 helm install csi-driver-nfs \
@@ -35,7 +39,7 @@ helm install csi-driver-nfs \
   csi-driver-nfs/csi-driver-nfs
 ```
 
-Installation du `local-path-provisionner` de `Rancher`:
+Installation du `local-path-provisionner` de `Rancher` :
 ```sh
 kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.35/deploy/local-path-storage.yaml
 ```
@@ -48,14 +52,13 @@ helm repo add postgres-operator-charts https://opensource.zalando.com/postgres-o
 helm install postgres-operator postgres-operator-charts/postgres-operator
 ```
 
-Création du secret tls :
-```sh
-kubectl create secret tls pg-tls \
-  --key tls.key \
-  --cert tls.crt
-```
-
-Déploiement du cluster postgresql :
+Déploiement du cluster `postgresql` :
 ```sh
 kubectl create -f database.yaml
+```
+
+Déploiement de l'application front/back :
+```sh
+kubectl apply -f backend.yaml
+kubectl apply -f frontend.yaml
 ```

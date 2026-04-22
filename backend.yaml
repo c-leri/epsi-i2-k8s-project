@@ -14,7 +14,7 @@ spec:
         app: app-de-con-backend
     spec:
       containers:
-        - name: web
+        - name: backend
           image: ghcr.io/c-leri/epsi-i2-k8s-project-backend:latest
           ports:
             - containerPort: 80
