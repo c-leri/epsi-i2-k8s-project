@@ -9,35 +9,15 @@ Mise en place d'un cluster kind :
 kind create cluster --config ./kind-config.yaml
 ```
 
-Installation de `MetalLB` via `Helm` :
-```sh
-helm repo add metallb https://metallb.github.io/metallb
-helm install metallb \
-  --values ./metallb-values.yaml \
-  metallb/metallb
-```
-
 Installation de `traefik` via `Helm` :
 ```sh
 helm repo add traefik https://traefik.github.io/charts
 helm install traefik \
-  --namespace traefik \
-  --create-namespace \
   --values traefik.yaml \
   traefik/traefik
 ```
 
 #### Installation des StorageClass
-
-Installation du driver `NFS CSI` via `Helm` :
-```sh
-helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
-helm install csi-driver-nfs \
-  --namespace kube-system \
-  --version 4.13.1 \
-  --values ./csi-driver-nfs-values.yaml \
-  csi-driver-nfs/csi-driver-nfs
-```
 
 Installation du `local-path-provisionner` de `Rancher` :
 ```sh
@@ -62,3 +42,17 @@ Déploiement de l'application front/back :
 kubectl apply -f backend.yaml
 kubectl apply -f frontend.yaml
 ```
+
+Déploiement de l'`Ingress` `traefik` :
+```sh
+kubectl apply -f ingressroute.yaml
+```
+
+## Accéder à l'application
+
+Mise en place du port-forwarding du service `traefik` :
+```sh
+kubectl port-forward svc/traefik 8080:80
+```
+
+L'application est maintenant accessible sur <http://localhost:8080/app-de-con>
