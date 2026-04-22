@@ -1,3 +1,40 @@
-ingressRoute:
-  dashboard:
-    enabled: true
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: app-de-con-frontend
+spec:
+  replacePathRegex:
+    regex: "^/app-de-con(.*)"
+    replacement: "$1"
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: app-de-con-backend
+spec:
+  replacePathRegex:
+    regex: "^/app-de-con/api(.*)"
+    replacement: "$1"
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: app-de-con
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: PathPrefix(`/app-de-con`)
+      kind: Rule
+      middlewares:
+        - name: app-de-con-frontend
+      services:
+        - name: app-de-con-frontend
+          port: 80
+    - match: PathPrefix(`/app-de-con/api`)
+      kind: Rule
+      middlewares:
+        - name: app-de-con-backend
+      services:
+        - name: app-de-con-backend
+          port: 3001

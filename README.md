@@ -13,7 +13,7 @@ Installation de `traefik` via `Helm` :
 ```sh
 helm repo add traefik https://traefik.github.io/charts
 helm install traefik \
-  --values traefik.yaml \
+  --values traefik-values.yaml \
   traefik/traefik
 ```
 
@@ -43,9 +43,9 @@ kubectl apply -f backend.yaml
 kubectl apply -f frontend.yaml
 ```
 
-Déploiement de l'`Ingress` `traefik` :
+Déploiement de l'`IngressRoute` `traefik` et des `middlewares` associés :
 ```sh
-kubectl apply -f ingressroute.yaml
+kubectl apply -f traefik.yaml
 ```
 
 ## Accéder à l'application
