@@ -14,12 +14,6 @@ const pool = new Pool({
   database: process.env.DB_NAME || 'appdb',
   user: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASSWORD || 'postgres',
-  ssl: process.env.DB_SSL_KEY || process.env.DB_SSL_CERT
-    ? {
-      key: process.env.DB_SSL_KEY || undefined,
-      cert: process.env.DB_SSL_CERT || undefined,
-    }
-    : undefined,
 });
 
 async function initDB() {
