@@ -6,8 +6,9 @@ spec:
   selector:
     matchLabels:
       app: app-de-con-frontend
+  replicas: 3
   strategy:
-    type: Recreate
+    type: RollingUpdate
   template:
     metadata:
       labels:
@@ -16,6 +17,7 @@ spec:
       containers:
         - name: frontend
           image: ghcr.io/c-leri/epsi-i2-k8s-project-frontend:latest
+          imagePullPolicy: "Always"
           ports:
             - containerPort: 80
 
