@@ -12,9 +12,7 @@ kind create cluster --config ./kind-config.yaml
 Installation de `traefik` via `Helm` :
 ```sh
 helm repo add traefik https://traefik.github.io/charts
-helm install traefik \
-  --values traefik-values.yaml \
-  traefik/traefik
+helm install traefik traefik/traefik
 ```
 
 #### Installation des StorageClass
@@ -56,3 +54,16 @@ kubectl port-forward svc/traefik 8080:80
 ```
 
 L'application est maintenant accessible sur <http://localhost:8080/app-de-con>
+
+## Supervision
+
+Installation de `kube-prometheus-stack` via `Helm` :
+```sh
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add grafana https://grafana.github.io/helm-charts
+helm install prometheus \
+  --namespace monitoring \
+  --create-namespace \
+  --values prometheus-stack-values.yaml \
+  prometheus-community/kube-prometheus-stack
+```

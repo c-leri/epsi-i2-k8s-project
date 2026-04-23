@@ -1,0 +1,9 @@
+grafana:
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    path: /monitoring
+  grafana.ini:
+    server:
+      root_url: http://localhost:8080/monitoring
+      serve_from_sub_path: true
